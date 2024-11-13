@@ -1,14 +1,18 @@
 module Shapes(
-  Shape(..), Vector(..), Point, Transformation(..), Drawing(..), Colour,
+  Matrix(..), Shape(..), Vector(..), Point, Transformation(..), Drawing(..), Colour,
   circle, square, rectangle, ellipse, polygon,
   -- scale, rotate, shear, translate -- TODO implement shear and rotate
   scale, scaleX, scaleY, scale1, scale2, translate, -- remove later
   shear, shearX, shearY, shear1, shear2,
   -- over, under, left, right, above, below, xor
   black, white, red, green, blue, colour,
-  blank, over,
+  blank, background, over,
+
+  rotate,
 
   fill,
+
+  matrix,
 
   point
 ) where
@@ -53,6 +57,7 @@ data Drawing = Shape Shape
              | Above Shape Drawing
              | Below Shape Drawing
 
+-- Basic colours I think are useful
 white, black, red, green, blue :: Colour
 white = PixelRGB8 255 255 255
 black = PixelRGB8 0 0 0
@@ -60,23 +65,29 @@ red   = PixelRGB8 255 0 0
 green = PixelRGB8 0 255 0
 blue  = PixelRGB8 0 0 255
 
+-- Define your a=own colours
 colour :: Int -> Int -> Int -> Colour
 colour r g b = PixelRGB8 r' g' b'
   where r' = fromIntegral r
         g' = fromIntegral g
         b' = fromIntegral b
 
--- Changes the colour of a shape
+-- Changes the colour of a shape, can be applied any time
 fill :: Shape -> Colour -> Shape
 fill (Square _) c      = Square c
 fill (Circle _) c      = Circle c
 fill (Polygon _ ps) c  = Polygon c ps
 fill (Transform t s) c = Transform t (fill s c)
 
-
+-- Returns a drawing that is just a black square
 blank :: Drawing
 blank = Shape (square `fill` black)
 
+-- Returns a Drawing that is just a square of specified colour
+background :: Colour -> Drawing
+background c = Shape (square `fill` c)
+
+-- Draw a shape over a drawing
 over :: Shape -> Drawing -> Drawing
 s `over` d = Over s d
 
@@ -90,6 +101,7 @@ ellipse    = Circle white
 polygon :: [Point] -> Shape
 polygon points = Polygon white points
 
+-- Scale functions
 scaleX, scaleY, scale1 :: Shape -> Double -> Shape
 s `scaleX` x = s `scale` (x, 1)
 s `scaleY` y = s `scale` (1, y)
@@ -101,6 +113,7 @@ scale2 s x y = s `scale` (x, y)
 scale :: Shape -> (Double, Double) -> Shape
 s `scale` (x, y) = Transform (Scale x y) s
 
+-- Shear functions
 shearX, shearY, shear1 :: Shape -> Double -> Shape
 s `shearX` x = s `shear` (x, 0)
 s `shearY` y = s `shear` (0, y)
@@ -112,5 +125,10 @@ shear2 s x y = s `shear` (x, y)
 shear :: Shape -> (Double, Double) -> Shape
 s `shear` (x, y) = Transform (Shear x y) s
 
+-- Translate functions
 translate :: Shape -> (Double, Double) -> Shape
 translate s (x, y) = Transform (Translate x y) s
+
+-- Rotate functions
+rotate :: Shape -> Double -> Shape
+s `rotate` angle = Transform (Rotate $ matrix (cos angle) (-sin angle) (sin angle) (cos angle)) s

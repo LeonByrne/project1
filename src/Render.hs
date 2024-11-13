@@ -19,10 +19,21 @@ distance (Vector x y ) = sqrt ( x**2 + y**2 )
 maxnorm :: Point -> Double
 maxnorm (Vector x y ) = max (abs x) (abs y)
 
+cross :: Vector -> Vector -> Double
+cross (Vector a1 b1) (Vector a2 b2) = a1 * a2 + b1 * b2
+
+mult :: Matrix -> Vector -> Vector
+mult (Matrix r0 r1) v = Vector (cross r0 v) (cross r1 v)
+
+invert :: Matrix -> Matrix
+invert (Matrix (Vector a b) (Vector c d)) = matrix (d / k) (-b / k) (-c / k) (a / k)
+  where k = a * d - b * c
+
 transform :: Point -> Transformation -> Point
 transform (Vector x y) (Scale sx sy) = Vector (x / sx) (y / sy)  
 transform (Vector x y) (Shear sx sy) = Vector (x + sx*y) (y + sy*x)
 transform (Vector x y) (Translate tx ty) = Vector (x - tx) (y - ty) 
+transform p (Rotate m) = invert m `mult` p
 transform p _ = p -- TODO implement this for shear and rotate
 
 inside :: Point -> Shape -> Bool

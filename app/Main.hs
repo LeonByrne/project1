@@ -22,5 +22,10 @@ main = scotty 3000 $ do
 
   get "/circle" $ do
     let imgData = example1
-    setHeader "Content-Type" "image.png"
+    setHeader "Content-Type" "image/png"
+    raw imgData
+    
+  get "/diamond" $ do
+    let imgData = example2
+    setHeader "Content-Type" "image/png"
     raw imgData
