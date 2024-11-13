@@ -8,8 +8,8 @@
 module Main where
 
 import Lib    (render, defaultWindow)
-import Shapes (circle, white, scale, scale1, translate, blank, over)
+import Shapes (square, circle, white, scale, scale1, scaleX, translate, blank, over)
 
-example = (circle `scale1` 1) `over` blank
+example = (square `scale1` 0.9 `translate` (0.05, 0.0)) `over` ((circle `scale1` 1) `over` blank)
 
 main = render "Output.png" defaultWindow example

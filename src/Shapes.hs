@@ -12,6 +12,8 @@ module Shapes(
   colourAt
 ) where
 
+import Codec.Picture
+
 data Vector = Vector Double Double
   deriving Show
 
@@ -38,7 +40,7 @@ getX (Vector x _) = x
 getY (Vector _ y) = y
 
 -- TODO could be ints maybe?
-type Colour = (Float, Float, Float)
+type Colour = PixelRGB8
 
 data Transformation = Scale Double Double
                     | Rotate Matrix
@@ -59,14 +61,17 @@ data Drawing = Empty
              | Below Shape Drawing
 
 white, black, red, green, blue :: Colour
-white = (255, 255, 255)
-black = (0, 0, 0)
-red = (255, 0, 0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
+white = PixelRGB8 255 255 255
+black = PixelRGB8 0 0 0
+red   = PixelRGB8 255 0 0
+green = PixelRGB8 0 255 0
+blue  = PixelRGB8 0 0 255
 
-colour :: Float -> Float -> Float -> Colour
-colour r g b = (r, g, b)
+colour :: Int -> Int -> Int -> Colour
+colour r g b = PixelRGB8 r' g' b'
+  where r' = fromIntegral r
+        g' = fromIntegral g
+        b' = fromIntegral b
 
 blank :: Drawing
 blank = Empty
@@ -107,8 +112,8 @@ transform (Vector x y) (Translate tx ty) = Vector (x - tx) (y - ty)
 transform p _ = p -- TODO implement this for shear and rotate
 
 inside :: Point -> Shape -> Bool
-p `inside` Square _ = maxnorm p <= 1 
-p `inside` Circle _ = distance p <= 1
+p `inside` Square _ = maxnorm p <= 0.5
+p `inside` Circle _ = distance p <= 0.5
 p `inside` Polygon _ _ = False -- TODO implement this
 p `inside` Transform t s = transform p t `inside` s
 

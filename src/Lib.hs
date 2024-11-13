@@ -4,6 +4,7 @@ module Lib
 
 import Codec.Picture
 import Shapes
+import Render
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
@@ -39,31 +40,32 @@ coords (Window _ _ (w,h)) = [ [(x,y) | x <- [0..w]] | y <- [0..h] ]
 
 
 render :: String -> Window -> Drawing -> IO ()
-render path win sh = writePng path $ generateImage pixRenderer w h
-    where
-      Window _ _ (w,h) = win
+render path win sh = writePng path $ render1 sh (500, 500)
+-- render path win sh = writePng path $ generateImage pixRenderer w h
+--     where
+--       Window _ _ (w,h) = win
 
-      pixRenderer x y = PixelRGB8 c c c where c = colorForImage $ mapPoint win (x,y)
+--       pixRenderer x y = PixelRGB8 c c c where c = colorForImage $ mapPoint win (x,y)
 
-      -- This now runs in O(1) time, lookup is ignored
-      --   It makes only the point required
-      --   Looked at how pixels and samples worked. Had to change the 
-      --   calculation of y' for some reason to get it to make the old mapPoint,
-      --   the resulting images were flipped vertically otherwise.
-      mapPoint :: Window -> (Int,Int) -> Point
-      mapPoint (Window p0 p1 (w, h)) (x, y) = point x' y'
-        where
-          Vector minX minY = p0
-          Vector maxX maxY = p1
-          x' = minX + ((maxX - minX) * fromIntegral x) / fromIntegral (w-1)
-          y' = maxY - ((maxY - minY) * fromIntegral y) / fromIntegral (h-1)
+--       -- This now runs in O(1) time, lookup is ignored
+--       --   It makes only the point required
+--       --   Looked at how pixels and samples worked. Had to change the 
+--       --   calculation of y' for some reason to get it to make the old mapPoint,
+--       --   the resulting images were flipped vertically otherwise.
+--       mapPoint :: Window -> (Int,Int) -> Point
+--       mapPoint (Window p0 p1 (w, h)) (x, y) = point x' y'
+--         where
+--           Vector minX minY = p0
+--           Vector maxX maxY = p1
+--           x' = minX + ((maxX - minX) * fromIntegral x) / fromIntegral (w-1)
+--           y' = maxY - ((maxY - minY) * fromIntegral y) / fromIntegral (h-1)
 
-      lookup1 :: (Int,Int) -> [((Int,Int), Point)] -> Point
-      lookup1 a m = case lookup a m of
-                      Nothing -> point 0 0
-                      Just x  -> x
+--       lookup1 :: (Int,Int) -> [((Int,Int), Point)] -> Point
+--       lookup1 a m = case lookup a m of
+--                       Nothing -> point 0 0
+--                       Just x  -> x
 
-      locations :: [ ((Int,Int), Point) ]
-      locations = concat $ zipWith zip (coords win) (pixels win)
-      colorForImage p | colourAt sh p == (255, 255, 255) = 255
-                      | otherwise                        = 0
+--       locations :: [ ((Int,Int), Point) ]
+--       locations = concat $ zipWith zip (coords win) (pixels win)
+--       colorForImage p | colourAt sh p == colour 255 255 255 = 255
+--                       | otherwise                        = 0
