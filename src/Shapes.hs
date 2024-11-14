@@ -6,7 +6,8 @@ module Shapes(
   shear, shearX, shearY, shear1, shear2,
   -- over, under, left, right, above, below, xor
   black, white, red, green, blue, colour,
-  blank, background, over,
+  blank, background, shapeToDrawing, over,
+  above,
 
   rotate,
 
@@ -87,9 +88,15 @@ blank = Shape (square `fill` black)
 background :: Colour -> Drawing
 background c = Shape (square `fill` c)
 
+shapeToDrawing :: Shape -> Drawing
+shapeToDrawing s = Shape s
+
 -- Draw a shape over a drawing
 over :: Shape -> Drawing -> Drawing
 s `over` d = Over s d
+
+above :: Shape -> Drawing -> Drawing
+s `above` d = Above s d
 
 -- Constructors for unit shapes, polygon excluded. All white
 square, rectangle, ellipse, circle :: Shape

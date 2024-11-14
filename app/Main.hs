@@ -39,3 +39,8 @@ main = scotty 3000 $ do
     let imgData = example4
     setHeader "Content-Type" "image/png"
     raw imgData
+
+  get "/above" $ do
+    let imgData = example5
+    setHeader "Content-Type" "image/png"
+    raw imgData

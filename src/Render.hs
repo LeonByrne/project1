@@ -78,6 +78,11 @@ colourAt (Shape s) p | p `inside` s = getColour s
 colourAt (Over s d) p | p `inside` s = getColour s
                       | otherwise    = colourAt d p 
 
+colourAt (Above s d) p | p' `inside` (shape d) = getColour (shape d)
+                       | otherwise            = colourAt (drawing d) p
+                         where
+                          
+
 
 
 getSize :: Shape -> (Double, Double)

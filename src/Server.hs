@@ -2,7 +2,8 @@ module Server(
   example1,
   example2,
   example3,
-  example4
+  example4,
+  example5
 ) where
 
 import Codec.Picture
@@ -36,4 +37,10 @@ example4 :: ByteString
 example4 = imgToStr img
   where 
     drawing = (polygon [point (-0.5) 0.5, point 0.5 0.5, point 0 (-0.5)] `fill` blue `scale1` 0.5) `over` background black
+    img = render1 drawing (1000, 1000)
+
+example5 :: ByteString
+example5 = imgToStr img
+  where
+    drawing = (square `fill` blue `scale1` 0.2) `above` shapeToDrawing (circle `fill` red `scaleY` 0.5)
     img = render1 drawing (1000, 1000)
