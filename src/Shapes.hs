@@ -48,14 +48,14 @@ data Transformation = Scale Double Double
 data Shape = Square Colour
            | Circle Colour
            | Polygon Colour [Point]
-           | Transform Transformation Shape
+           | Transform [Transformation] Shape
 
-data Drawing = Shape Shape
-             | Over Shape Drawing
-             | Left Shape Drawing
-             | Right Shape Drawing
-             | Above Shape Drawing
-             | Below Shape Drawing
+data Drawing = Shape {shape :: Shape}
+             | Over  {shape :: Shape, drawing :: Drawing}
+             | Left  {shape :: Shape, drawing :: Drawing}
+             | Right {shape :: Shape, drawing :: Drawing}
+             | Above {shape :: Shape, drawing :: Drawing}
+             | Below {shape :: Shape, drawing :: Drawing}
 
 -- Basic colours I think are useful
 white, black, red, green, blue :: Colour
@@ -111,7 +111,9 @@ scale2 :: Shape -> Double -> Double -> Shape
 scale2 s x y = s `scale` (x, y) 
 
 scale :: Shape -> (Double, Double) -> Shape
-s `scale` (x, y) = Transform (Scale x y) s
+-- s `scale` (x, y) = Transform (Scale x y) s
+(Transform ts s) `scale` (x, y) = Transform (Scale x y : ts) s
+s `scale` (x, y) = Transform [Scale x y] s
 
 -- Shear functions
 shearX, shearY, shear1 :: Shape -> Double -> Shape
@@ -123,12 +125,15 @@ shear2 :: Shape -> Double -> Double -> Shape
 shear2 s x y = s `shear` (x, y)
 
 shear :: Shape -> (Double, Double) -> Shape
-s `shear` (x, y) = Transform (Shear x y) s
+-- s `shear` (x, y) = Transform (Shear x y) s
+(Transform ts s) `shear` (x, y) = Transform (Shear x y : ts) s
 
 -- Translate functions
 translate :: Shape -> (Double, Double) -> Shape
-translate s (x, y) = Transform (Translate x y) s
+-- translate s (x, y) = Transform (Translate x y) s
+translate (Transform ts s) (x, y) = Transform (Translate x y : ts) s
 
 -- Rotate functions
 rotate :: Shape -> Double -> Shape
-s `rotate` angle = Transform (Rotate $ matrix (cos angle) (-sin angle) (sin angle) (cos angle)) s
+-- s `rotate` angle = Transform (Rotate $ matrix (cos angle) (-sin angle) (sin angle) (cos angle)) s
+(Transform ts s) `rotate` angle = Transform ((Rotate $ matrix (cos angle) (-sin angle) (sin angle) (cos angle)) : ts) s

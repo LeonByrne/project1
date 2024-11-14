@@ -29,3 +29,13 @@ main = scotty 3000 $ do
     let imgData = example2
     setHeader "Content-Type" "image/png"
     raw imgData
+
+  get "/eye" $ do
+    let imgData = example3
+    setHeader "Content-Type" "image/png"
+    raw imgData
+
+  get "/triangle" $ do
+    let imgData = example4
+    setHeader "Content-Type" "image/png"
+    raw imgData
