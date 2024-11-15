@@ -1,42 +1,31 @@
 module Shapes(
-  Matrix(..), Shape(..), Vector(..), Point, Transformation(..), Drawing(..), Colour,
+  Matrix(..), Shape(..), Point, Transformation(..), Drawing(..), Colour,
   circle, square, rectangle, ellipse, polygon,
-  -- scale, rotate, shear, translate -- TODO implement shear and rotate
-  scale, scaleX, scaleY, scale1, scale2, translate, -- remove later
-  shear, shearX, shearY, shear1, shear2,
-  -- over, under, left, right, above, below, xor
   black, white, red, green, blue, colour,
-  blank, background, shapeToDrawing, over,
-  above,
+  blank, background, shapeToDrawing, 
+  over, left, right, above, below,
 
+  scale, scaleX, scaleY, scale1, scale2,
+  shear, shearX, shearY, shear1, shear2,
   rotate,
+  translate,
 
   fill,
 
-  matrix,
-
-  point
+  matrix
 ) where
+
+import Prelude hiding(Left, Right)
 
 import Codec.Picture
 
-data Vector = Vector Double Double
-  deriving Show
-
-data Matrix = Matrix Vector Vector
+data Matrix = Matrix Double Double Double Double
   deriving Show
 
 matrix :: Double -> Double -> Double -> Double -> Matrix
-matrix a b c d = Matrix (Vector a b) (Vector c d)
+matrix a b c d = Matrix a b c d
 
--- TODO have this at all?
-type Point = Vector
-
-point :: Double -> Double -> Point
-point = Vector
-
-getX (Vector x _) = x
-getY (Vector _ y) = y
+type Point = (Double, Double)
 
 -- TODO could be ints maybe?
 type Colour = PixelRGB8
@@ -46,9 +35,9 @@ data Transformation = Scale Double Double
                     | Shear Double Double
                     | Translate Double Double
 
-data Shape = Square Colour
-           | Circle Colour
-           | Polygon Colour [Point]
+data Shape = Square    Colour
+           | Circle    Colour
+           | Polygon   Colour [Point]
            | Transform [Transformation] Shape
 
 data Drawing = Shape {shape :: Shape}
@@ -92,11 +81,12 @@ shapeToDrawing :: Shape -> Drawing
 shapeToDrawing s = Shape s
 
 -- Draw a shape over a drawing
-over :: Shape -> Drawing -> Drawing
-s `over` d = Over s d
-
-above :: Shape -> Drawing -> Drawing
+over, left, right, above, below :: Shape -> Drawing -> Drawing
+s `over` d  = Over s d
+s `left` d  = Left s d
+s `right` d = Right s d
 s `above` d = Above s d
+s `below` d = Below s d
 
 -- Constructors for unit shapes, polygon excluded. All white
 square, rectangle, ellipse, circle :: Shape
@@ -132,15 +122,17 @@ shear2 :: Shape -> Double -> Double -> Shape
 shear2 s x y = s `shear` (x, y)
 
 shear :: Shape -> (Double, Double) -> Shape
--- s `shear` (x, y) = Transform (Shear x y) s
 (Transform ts s) `shear` (x, y) = Transform (Shear x y : ts) s
+s `shear` (x, y) = Transform [Shear x y] s
 
 -- Translate functions
 translate :: Shape -> (Double, Double) -> Shape
--- translate s (x, y) = Transform (Translate x y) s
 translate (Transform ts s) (x, y) = Transform (Translate x y : ts) s
+translate s (x, y) = Transform [Translate x y] s
 
 -- Rotate functions
 rotate :: Shape -> Double -> Shape
--- s `rotate` angle = Transform (Rotate $ matrix (cos angle) (-sin angle) (sin angle) (cos angle)) s
-(Transform ts s) `rotate` angle = Transform ((Rotate $ matrix (cos angle) (-sin angle) (sin angle) (cos angle)) : ts) s
+(Transform ts s) `rotate` angle = Transform ((Rotate $ matrix (cos angle') (-sin angle') (sin angle') (cos angle')) : ts) s
+  where angle' = angle * pi / 180
+s `rotate` angle = Transform [(Rotate $ matrix (cos angle') (-sin angle') (sin angle') (cos angle'))] s
+  where angle' = angle * pi / 180

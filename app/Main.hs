@@ -3,25 +3,37 @@
 
 module Main(main) where
 
-import Lib    (render)
-import Shapes (fill, square, circle, green, red, white, scale, scale1, scaleX, scaleY, shearX, shearY, shear1, translate, blank, over)
 import Server
 
 import Web.Scotty
-
-example = (square `scale1` 0.5 `shearY` 0.5 `fill` red) `over` ((circle `scale1` 0.9 `fill` green) `over` blank)
--- example = ((circle `scale1` 0.5 `scaleX` 2 `translate` (0, 0.25) `fill` green) `over` blank)
--- example = ((scale1 (circle `scale1` 0.1 `translate` (0, 0.25) `scaleY` 10 `fill` green) 0.1) `over` blank)
-
--- main = render "Output.png" example
+import Text.Blaze.Html.Renderer.Text (renderHtml)
 
 main :: IO ()
 main = scotty 3000 $ do
-  get "/" $ do 
-    text "hello"
+  get "/" $ html $ renderHtml mainPage
 
   get "/circle" $ do
-    let imgData = example1
+    let imgData = circleExample
+    setHeader "Content-Type" "image/png"
+    raw imgData
+
+  get "/square" $ do
+    let imgData = squareExample
+    setHeader "Content-Type" "image/png"
+    raw imgData
+
+  get "/rectangle" $ do
+    let imgData = rectExample
+    setHeader "Content-Type" "image/png"
+    raw imgData
+
+  get "/ellipse" $ do
+    let imgData = ellipseExample
+    setHeader "Content-Type" "image/png"
+    raw imgData
+
+  get "/polygon" $ do
+    let imgData = polyExample
     setHeader "Content-Type" "image/png"
     raw imgData
     
@@ -31,16 +43,21 @@ main = scotty 3000 $ do
     raw imgData
 
   get "/eye" $ do
-    let imgData = example3
+    let imgData = eyeExample
     setHeader "Content-Type" "image/png"
     raw imgData
 
-  get "/triangle" $ do
-    let imgData = example4
+  get "/snowman" $ do
+    let imgData = snowmanExample
     setHeader "Content-Type" "image/png"
     raw imgData
 
-  get "/above" $ do
-    let imgData = example5
+  get "/shear" $ do
+    let imgData = shearExample
+    setHeader "Content-Type" "image/png"
+    raw imgData
+
+  get "/rotate" $ do
+    let imgData = rotateExample
     setHeader "Content-Type" "image/png"
     raw imgData
